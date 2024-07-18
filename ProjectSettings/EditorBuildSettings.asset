@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_Project/Scenes/PhilLabOne.unity
+    guid: a74a3f59d47272d4aaf1efdae04323b3
   m_configObjects: {}
