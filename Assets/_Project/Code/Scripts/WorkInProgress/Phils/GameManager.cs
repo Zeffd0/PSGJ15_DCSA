@@ -1,18 +1,38 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+namespace PSGJ15_DCSA.Core
 {
-    // Start is called before the first frame update
-    void Start()
+    public class GameManager : IndestructibleSingletonBehaviour<GameManager>
     {
-        
-    }
+        [SerializeField] private SceneHandler m_sceneHandler;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        protected override void OnSingletonAwake()
+        {
+            initSceneHandling();
+        }
+
+        #region Scene Handling
+
+        private void initSceneHandling()
+        {
+            m_sceneHandler.isLoading = false;
+            SceneManager.sceneLoaded += (scene, _) => m_sceneHandler.OnSceneLoaded(scene);
+            m_sceneHandler.InitializeSceneNameDictionnary();
+            m_sceneHandler.InitializeViewHandlers();
+        }
+
+        public void LoadScene(string sceneName)
+        {
+            if (!m_sceneHandler.isLoading)
+            {
+                m_sceneHandler.isLoading = true;
+                StartCoroutine(m_sceneHandler.LoadSceneAsync(sceneName));
+            }
+        }
+
+        #endregion
     }
 }
