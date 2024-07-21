@@ -155,6 +155,7 @@ namespace PSGJ15_DCSA.Inputs
                 break;
                 case GameState.Play:
                 {
+                    Debug.Log("play is true");
                     SetBoolGameplayActive(true);
                     m_input.SetGameplayInputs();
                 }
