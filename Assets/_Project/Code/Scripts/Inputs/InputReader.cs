@@ -19,6 +19,7 @@ namespace PSGJ15_DCSA.Inputs
         public event Action<Vector2> MovementEvent;
         public void OnMovement(InputAction.CallbackContext context)
         {
+            //Debug.Log($"'OnMovement' context : {context}");
             MovementEvent?.Invoke(context.ReadValue<Vector2>());
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,6 +117,23 @@ namespace PSGJ15_DCSA.Inputs
             }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // =========================================================================================================
+        // Events for Jump | Float
+        // =========================================================================================================
+        public event Action JumpPerformed;
+        public event Action JumpCanceled;
+        public void OnJump(InputAction.CallbackContext context)
+        {
+            if(context.phase == InputActionPhase.Performed)
+            {
+                JumpPerformed?.Invoke();
+            }
+            if(context.phase == InputActionPhase.Canceled)
+            {
+                JumpCanceled?.Invoke();
+            }
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         #endregion
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         #region Menu Inputs
@@ -141,28 +159,37 @@ namespace PSGJ15_DCSA.Inputs
                 SetGameplayInputs();
             }
         }
-
         private void OnDisable()
         {
             DisableAllInputs();
         }
-
         public void SetGameplayInputs()
         {
+            SetCursorToPlayMode();
             m_PlayerInputs.Gameplay.Enable();
             m_PlayerInputs.Menu.Disable();
         }
-
         public void SetMenuInputs()
         {
+            SetCursorToMenuMode();
             m_PlayerInputs.Gameplay.Disable();
             m_PlayerInputs.Menu.Enable();
         }
-
         public void DisableAllInputs()
         {
             m_PlayerInputs.Gameplay.Disable();
             m_PlayerInputs.Menu.Disable();
+        }
+        private void SetCursorToPlayMode()
+        {
+            SetCursorToMenuMode();
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        private void SetCursorToMenuMode()
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
         }
         #endregion
     }

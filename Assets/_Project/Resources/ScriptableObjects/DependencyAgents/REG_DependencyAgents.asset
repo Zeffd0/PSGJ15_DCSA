@@ -12,4 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33ba7ec9551243e41b8a31ae91f92f71, type: 3}
   m_Name: REG_DependencyAgents
   m_EditorClassIdentifier: 
-  DependencyAgentsEntries: []
+  DependencyAgentsEntries:
+  - type: 1
+    agent: {fileID: 11400000, guid: 6ed55cf4afdebb14481efdd565914533, type: 2}
