@@ -67,6 +67,7 @@ namespace PSGJ15_DCSA.Inputs
         {
             m_CharacterController = GetComponent<CharacterController>();
             m_DAGameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
+            //m_DAGameStates.InitGameState(); // todo:: potentially displace this to a class that handles game states globally later
         }
 
         private void Start()
@@ -89,8 +90,7 @@ namespace PSGJ15_DCSA.Inputs
 
             m_input.MouseMovementCanceled += HandleLookAround;
             m_input.ShiftCanceled += HandleShift;
-
-            HandleToggleActiveInputs(m_DAGameStates.CurrentGameState());
+            m_DAGameStates.OnGameStateChanged += HandleToggleActiveInputs;
         }
 
         private void OnDisable()
@@ -103,6 +103,8 @@ namespace PSGJ15_DCSA.Inputs
 
             m_input.MouseMovementCanceled -= HandleLookAround;
             m_input.ShiftCanceled -= HandleShift;
+            m_DAGameStates.OnGameStateChanged -= HandleToggleActiveInputs;
+
         }
         /////////////////////////////////////////////////////////////////////////////////////////////
         private void Update()
@@ -112,6 +114,11 @@ namespace PSGJ15_DCSA.Inputs
                 UpdateGrounded();
                 UpdateGravity();
                 UpdateMovement();
+            }
+
+            if (Input.GetKeyDown(KeyCode.F10))
+            {
+                Debug.Log(m_DAGameStates.CurrentGameState() + "WHAT THE FUCK");
             }
         }
         private void LateUpdate()

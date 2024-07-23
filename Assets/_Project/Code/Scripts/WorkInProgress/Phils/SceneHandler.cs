@@ -6,11 +6,15 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
 using UnityEngine.UI;
+using PSGJ15_DCSA.Core.DependencyAgents;
+using PSGJ15_DCSA.Enums;
+using PSGJ15_DCSA.Interfaces;
+
 
 namespace PSGJ15_DCSA.Core
 {
     [CreateAssetMenu(fileName = "SceneHandler", menuName = "Project/Scene Handler", order = 2)]
-    public class SceneHandler :  ScriptableObject
+    public class SceneHandler :  ScriptableObject , IGameStateOperator
     {
         public enum SceneTypes
         {
@@ -18,6 +22,7 @@ namespace PSGJ15_DCSA.Core
             World,
             Other
         }
+        [SerializeField] private DA_GameStates m_GameStates;
 
         public bool isLoading;
         private Dictionary<string, SceneTypes> m_sceneTypeDictionnary;
@@ -80,9 +85,18 @@ namespace PSGJ15_DCSA.Core
             Debug.Log("Loading world stuff");
         }
 
-         private void InitGym()
+        private void InitGym()
         {
             Debug.Log("Loading gym stuff");
+            var m_GameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
+            if (m_GameStates != null)
+            {
+                Debug.Log(m_GameStates);
+            }
+            m_GameStates.InvokeChangeGameState(this, GameState.Play);
+
+            // GameManager.Instance.GameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
+            // GameManager.Instance.GameStates.InvokeChangeGameState(this, GameState.Play);        
         }
     }
 }
