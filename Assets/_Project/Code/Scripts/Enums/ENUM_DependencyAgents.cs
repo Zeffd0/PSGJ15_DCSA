@@ -5,6 +5,7 @@ namespace PSGJ15_DCSA.Enums
         None = 0,
         GameState,
         UI,
+        Character,
         Player,
         Enemy,
         Combat,

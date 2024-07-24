@@ -90,7 +90,7 @@ namespace PSGJ15_DCSA.Inputs
             m_input.MouseMovementCanceled += HandleLookAround;
             m_input.ShiftCanceled += HandleShift;
 
-            HandleToggleActiveInputs(m_DAGameStates.CurrentGameState());
+            m_DAGameStates.OnGameStateChanged += HandleToggleActiveInputs;
         }
 
         private void OnDisable()
@@ -103,6 +103,8 @@ namespace PSGJ15_DCSA.Inputs
 
             m_input.MouseMovementCanceled -= HandleLookAround;
             m_input.ShiftCanceled -= HandleShift;
+
+            m_DAGameStates.OnGameStateChanged -= HandleToggleActiveInputs;
         }
         /////////////////////////////////////////////////////////////////////////////////////////////
         private void Update()
@@ -155,7 +157,6 @@ namespace PSGJ15_DCSA.Inputs
                 break;
                 case GameState.Play:
                 {
-                    Debug.Log("play is true");
                     SetBoolGameplayActive(true);
                     m_input.SetGameplayInputs();
                 }
