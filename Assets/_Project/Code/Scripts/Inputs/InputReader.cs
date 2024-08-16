@@ -133,6 +133,24 @@ namespace PSGJ15_DCSA.Inputs
                 JumpCanceled?.Invoke();
             }
         }
+
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // =========================================================================================================
+        // Events for Mouse2 Actions | Float
+        // =========================================================================================================
+        public event Action HorizontalSlashPerformed;
+        public event Action HorizontalSlashCancelled;
+        public void OnHorizontalSlash(InputAction.CallbackContext context)
+        {
+            if(context.phase == InputActionPhase.Performed)
+            {
+                HorizontalSlashPerformed?.Invoke();
+            }
+            if(context.phase == InputActionPhase.Canceled)
+            {
+                HorizontalSlashCancelled?.Invoke();
+            }
+        }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         #endregion
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,6 +167,10 @@ namespace PSGJ15_DCSA.Inputs
         // =========================================================================================================
         private void OnEnable()
         {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+
+
             if(m_PlayerInputs == null)
             {
                 m_PlayerInputs = new PlayerInputs();
@@ -162,6 +184,9 @@ namespace PSGJ15_DCSA.Inputs
         private void OnDisable()
         {
             DisableAllInputs();
+            // #if UNITY_EDITOR
+            // UnityEditor.EditorApplication.update += ResetCursor;
+            // #endif
         }
         public void SetGameplayInputs()
         {
@@ -182,14 +207,24 @@ namespace PSGJ15_DCSA.Inputs
         }
         private void SetCursorToPlayMode()
         {
-            SetCursorToMenuMode();
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            //SetCursorToMenuMode(); // ???
+            //Cursor.lockState = CursorLockMode.Locked;
+            //Cursor.visible = false;
         }
         private void SetCursorToMenuMode()
         {
-            Cursor.lockState = CursorLockMode.Confined;
+            // Cursor.lockState = CursorLockMode.Confined;
+            // Cursor.visible = true;
+        }
+
+        void ResetCursor()
+        {
             Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.update -= ResetCursor;
+            #endif
         }
         #endregion
     }

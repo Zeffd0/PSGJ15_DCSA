@@ -77,6 +77,8 @@ namespace PSGJ15_DCSA.Core
 
         private void InitIntro()
         {
+            var m_GameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
+            m_GameStates.InvokeChangeGameState(this, GameState.Menu);
             Debug.Log("Loading intro stuff");
         }
 
@@ -89,14 +91,7 @@ namespace PSGJ15_DCSA.Core
         {
             Debug.Log("Loading gym stuff");
             var m_GameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
-            if (m_GameStates != null)
-            {
-                Debug.Log(m_GameStates);
-            }
-            m_GameStates.InvokeChangeGameState(this, GameState.Play);
-
-            // GameManager.Instance.GameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
-            // GameManager.Instance.GameStates.InvokeChangeGameState(this, GameState.Play);        
+            m_GameStates.InvokeChangeGameState(this, GameState.Play);     
         }
     }
 }
