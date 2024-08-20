@@ -16,7 +16,6 @@ namespace PSGJ15_DCSA.Core.DependencyAgents
 
         public GameState CurrentGameState()
         {
-            Debug.Log(m_CurrentGameState);
             return m_CurrentGameState;
         }
 
@@ -31,8 +30,20 @@ namespace PSGJ15_DCSA.Core.DependencyAgents
             }
 
             m_CurrentGameState = newState;
-            Debug.Log("que?" + newState);
+
+            #if UNITY_EDITOR
+            if (OnGameStateChanged != null)
+            {
+                Debug.Log($"OnGameStateChanged has {OnGameStateChanged.GetInvocationList().Length} subscribers. Invoking...");
+            }
+            else
+            {
+                Debug.Log("OnGameStateChanged has no subscribers.");
+            }
+            #endif
+
             OnGameStateChanged?.Invoke(newState);
+
             #if UNITY_EDITOR
             Debug.Log($"Game State changed to {newState} by {invoker.GetType().Name}", invoker as MonoBehaviour);
             #endif

@@ -5,10 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/_Project/Scenes/PhilLabOne.unity
+  - enabled: 1
+    path: Assets/_Project/Scenes/IntroScreen.unity
     guid: a74a3f59d47272d4aaf1efdae04323b3
   - enabled: 1
     path: Assets/_Project/Scenes/Gym.unity
     guid: 6c11dcbd8bb1b904fa76aad1f9801b55
+  - enabled: 1
+    path: Assets/SwordSlashingImport/Scenes/Main.unity
+    guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects: {}

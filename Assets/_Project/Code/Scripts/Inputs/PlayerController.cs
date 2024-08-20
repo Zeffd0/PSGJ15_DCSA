@@ -24,15 +24,43 @@ namespace PSGJ15_DCSA.Inputs
         [SerializeField] private float m_coyoteTime;
         [Header("Physics Fields")]
         [SerializeField] private float m_mass;
-
-
         [SerializeField] private const float m_MaxVerticalAngle = 83.0f;
         [SerializeField] private const float m_MinVerticalAngle = -83.0f;
 
+        [Header("Placeholder Move to adequate fields after")]
 
-        private float m_runSpeedValue;
-        private float m_verticalRotation;
-        private bool m_isSliding;
+        [SerializeField] private Animator animator;
+        [SerializeField] private AudioSource audioSource;
+        [SerializeField] private Camera cam;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // =========================================================================================================
+        // Animations
+        // =========================================================================================================
+
+        public const string IDLE = "Idle";
+        public const string WALK = "Walk";
+        public const string ATTACK1 = "Attack 1";
+        public const string ATTACK2 = "Attack 2";
+        string currentAnimationState;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // =========================================================================================================
+        // Attack
+        // =========================================================================================================
+        [Header("Attack")]
+        public float attackDistance = 3f;
+        public float attackDelay = 0.4f;
+        public float attackSpeed = 1f;
+        public int attackDamage = 1;
+        public LayerMask attackLayer;
+        public GameObject hitEffect;
+        public AudioClip swordSwing;
+        public AudioClip hitSound;
+        private bool attacking = false;
+        private bool readyToAttack = true;
+        private int attackCount;
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // =========================================================================================================
         // InputAction Pressed Fields
@@ -47,6 +75,16 @@ namespace PSGJ15_DCSA.Inputs
         private bool m_mouse2Pressed;
         private bool m_shiftPressed;
         private bool m_jumpPressed;
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // =========================================================================================================
+        // Sliding Fields
+        // =========================================================================================================
+
+        private float m_runSpeedValue;
+        private float m_verticalRotation;
+        private bool m_isSliding;
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // =========================================================================================================
@@ -67,6 +105,9 @@ namespace PSGJ15_DCSA.Inputs
         {
             m_CharacterController = GetComponent<CharacterController>();
             m_DAGameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
+            //m_DAGameStates.InitGameState(); // todo:: potentially displace this to a class that handles game states globally later
+            m_DAGameStates.OnGameStateChanged += HandleToggleActiveInputs;
+
         }
 
         private void Start()
@@ -86,11 +127,14 @@ namespace PSGJ15_DCSA.Inputs
             m_input.MouseMovementPerformed += HandleLookAround;
             m_input.ShiftPerformed += HandleShift;
             m_input.JumpPerformed += HandleJump;
+            m_input.Mouse1Performed += StartAttack;
+            m_input.Mouse1Canceled += StopAttack;
 
             m_input.MouseMovementCanceled += HandleLookAround;
             m_input.ShiftCanceled += HandleShift;
+            //m_DAGameStates.OnGameStateChanged += HandleToggleActiveInputs;
 
-            HandleToggleActiveInputs(m_DAGameStates.CurrentGameState());
+
         }
 
         private void OnDisable()
@@ -100,9 +144,13 @@ namespace PSGJ15_DCSA.Inputs
             m_input.MouseMovementPerformed -= HandleLookAround;
             m_input.ShiftPerformed -= HandleShift;
             m_input.JumpPerformed -= HandleJump;
+            m_input.Mouse1Performed += StartAttack;
+            m_input.Mouse1Canceled += StopAttack;
 
             m_input.MouseMovementCanceled -= HandleLookAround;
             m_input.ShiftCanceled -= HandleShift;
+
+            m_DAGameStates.OnGameStateChanged -= HandleToggleActiveInputs;
         }
         /////////////////////////////////////////////////////////////////////////////////////////////
         private void Update()
@@ -112,6 +160,11 @@ namespace PSGJ15_DCSA.Inputs
                 UpdateGrounded();
                 UpdateGravity();
                 UpdateMovement();
+            }
+
+            if(m_mouse1Pressed)
+            {
+                Attack();
             }
         }
         private void LateUpdate()
@@ -140,8 +193,19 @@ namespace PSGJ15_DCSA.Inputs
             m_jumpAttempt = true;
             m_lastJumpPressTime = Time.time;
         }
+
+        private void StartAttack()
+        {
+            m_mouse1Pressed = true;
+        }
+
+        private void StopAttack()
+        {
+            m_mouse1Pressed = false;
+        }
         private void HandleToggleActiveInputs(GameState currentGameState)
         {
+            //Debug.Log("currentGameState is    " + currentGameState);
             switch(currentGameState)
             {
                 case GameState.None:
@@ -155,9 +219,9 @@ namespace PSGJ15_DCSA.Inputs
                 break;
                 case GameState.Play:
                 {
-                    Debug.Log("play is true");
                     SetBoolGameplayActive(true);
                     m_input.SetGameplayInputs();
+                    
                 }
                 break;
                 case GameState.Pause:
@@ -235,10 +299,9 @@ namespace PSGJ15_DCSA.Inputs
         {
             UpdateJumpAttempt();
             Vector3 inputDirection = new Vector3(m_moveDirection.x, 0.0f, m_moveDirection.y);
-            
-            Quaternion cameraRotation = Quaternion.Euler(0.0f, Camera.main.transform.eulerAngles.y, 0.0f);
-
+            Quaternion cameraRotation = Quaternion.Euler(0.0f, cam.transform.eulerAngles.y, 0.0f);
             Vector3 moveDirection = cameraRotation * inputDirection;
+
             m_currentMovement = new Vector3(moveDirection.x, 0.0f, moveDirection.z) * (m_movementSpeed * m_runSpeedValue * Time.deltaTime);
             m_currentMovement += m_velocity * Time.deltaTime;
             m_CharacterController.Move(m_currentMovement);
@@ -267,6 +330,83 @@ namespace PSGJ15_DCSA.Inputs
             m_verticalRotation = Mathf.Clamp(m_verticalRotation, m_MinVerticalAngle, m_MaxVerticalAngle);
 
             m_CameraAnchor.transform.eulerAngles = new Vector3(m_verticalRotation, transform.eulerAngles.y, 0.0f);
+        }
+
+        public void ChangeAnimationState(string newState) 
+        {
+            // STOP THE SAME ANIMATION FROM INTERRUPTING WITH ITSELF //
+            if (currentAnimationState == newState) return;
+
+            // PLAY THE ANIMATION //
+            currentAnimationState = newState;
+            animator.CrossFadeInFixedTime(currentAnimationState, 0.2f);
+        }
+
+        void SetAnimations()
+        {
+            // If player is not attacking
+            if(!attacking)
+            {
+                if(m_velocity.x == 0 &&m_velocity.z == 0)
+                { ChangeAnimationState(IDLE); }
+                else
+                { ChangeAnimationState(WALK); }
+            }
+        }
+
+        // ------------------- //
+        // ATTACKING BEHAVIOUR //
+        // ------------------- //
+
+        public void Attack()
+        {
+            if(!readyToAttack || attacking) return;
+
+            readyToAttack = false;
+            attacking = true;
+
+            Invoke(nameof(ResetAttack), attackSpeed);
+            Invoke(nameof(AttackRaycast), attackDelay);
+
+            audioSource.pitch = Random.Range(0.9f, 1.1f);
+            audioSource.PlayOneShot(swordSwing);
+
+            if(attackCount == 0)
+            {
+                ChangeAnimationState(ATTACK1);
+                attackCount++;
+            }
+            else
+            {
+                ChangeAnimationState(ATTACK2);
+                attackCount = 0;
+            }
+        }
+
+        void ResetAttack()
+        {
+            attacking = false;
+            readyToAttack = true;
+        }
+
+        void AttackRaycast()
+        {
+            if(Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, attackDistance, attackLayer))
+            { 
+                HitTarget(hit.point);
+
+                if(hit.transform.TryGetComponent<Actor>(out Actor T))
+                { T.TakeDamage(attackDamage); }
+            } 
+        }
+
+        void HitTarget(Vector3 pos)
+        {
+            audioSource.pitch = 1;
+            audioSource.PlayOneShot(hitSound);
+
+            GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity);
+            Destroy(GO, 20);
         }
     }
 }
