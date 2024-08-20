@@ -106,7 +106,7 @@ namespace PSGJ15_DCSA.Inputs
             m_CharacterController = GetComponent<CharacterController>();
             m_DAGameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
             //m_DAGameStates.InitGameState(); // todo:: potentially displace this to a class that handles game states globally later
-                        m_DAGameStates.OnGameStateChanged += HandleToggleActiveInputs;
+            m_DAGameStates.OnGameStateChanged += HandleToggleActiveInputs;
 
         }
 
@@ -205,7 +205,7 @@ namespace PSGJ15_DCSA.Inputs
         }
         private void HandleToggleActiveInputs(GameState currentGameState)
         {
-            //Debug.Log("COMON I HAVE TO PASS HERE    " + currentGameState);
+            //Debug.Log("currentGameState is    " + currentGameState);
             switch(currentGameState)
             {
                 case GameState.None:
@@ -357,9 +357,9 @@ namespace PSGJ15_DCSA.Inputs
         // ------------------- //
         // ATTACKING BEHAVIOUR //
         // ------------------- //
+
         public void Attack()
         {
-            Debug.Log("am swing");
             if(!readyToAttack || attacking) return;
 
             readyToAttack = false;
@@ -408,6 +408,5 @@ namespace PSGJ15_DCSA.Inputs
             GameObject GO = Instantiate(hitEffect, pos, Quaternion.identity);
             Destroy(GO, 20);
         }
-
     }
 }
