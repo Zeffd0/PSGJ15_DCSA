@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PSGJ15_DCSA.Enums;
 using PSGJ15_DCSA.Core.DependencyAgents;
+using PSGJ15_DCSA.Interfaces;
 
 namespace PSGJ15_DCSA.Inputs
 {
@@ -322,6 +323,7 @@ namespace PSGJ15_DCSA.Inputs
         }
         private void UpdateLookAround()
         {
+            Debug.Log("I do go in here right?");
             float horizontalRotation = m_rotationDirection.x * m_rotationSpeed * Time.deltaTime;
             transform.Rotate(0.0f, horizontalRotation, 0.0f, Space.World);
             m_CameraAnchor.transform.Rotate(0.0f, horizontalRotation, 0.0f, Space.World);
@@ -395,8 +397,10 @@ namespace PSGJ15_DCSA.Inputs
             { 
                 HitTarget(hit.point);
 
-                if(hit.transform.TryGetComponent<Actor>(out Actor T))
-                { T.TakeDamage(attackDamage); }
+                if(hit.collider.TryGetComponent(out IDamageable damageable))
+                { 
+                    damageable.TakeDamage(attackDamage);
+                }
             } 
         }
 
