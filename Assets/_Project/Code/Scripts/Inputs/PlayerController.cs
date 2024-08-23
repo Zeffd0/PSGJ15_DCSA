@@ -323,7 +323,6 @@ namespace PSGJ15_DCSA.Inputs
         }
         private void UpdateLookAround()
         {
-            Debug.Log("I do go in here right?");
             float horizontalRotation = m_rotationDirection.x * m_rotationSpeed * Time.deltaTime;
             transform.Rotate(0.0f, horizontalRotation, 0.0f, Space.World);
             m_CameraAnchor.transform.Rotate(0.0f, horizontalRotation, 0.0f, Space.World);
