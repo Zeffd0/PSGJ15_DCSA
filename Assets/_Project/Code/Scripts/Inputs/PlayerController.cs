@@ -4,6 +4,7 @@ using UnityEngine;
 using PSGJ15_DCSA.Enums;
 using PSGJ15_DCSA.Core.DependencyAgents;
 using PSGJ15_DCSA.Interfaces;
+using PSGJ15_DCSA.Core;
 
 namespace PSGJ15_DCSA.Inputs
 {
@@ -135,7 +136,8 @@ namespace PSGJ15_DCSA.Inputs
             m_input.ShiftCanceled += HandleShift;
             //m_DAGameStates.OnGameStateChanged += HandleToggleActiveInputs;
 
-
+            // adds itself to a reference ennemmies can find
+            GameManager.Instance.ReferenceToPlayer = gameObject;
         }
 
         private void OnDisable()
@@ -166,6 +168,11 @@ namespace PSGJ15_DCSA.Inputs
             if(m_mouse1Pressed)
             {
                 Attack();
+            }
+
+            if(m_mouse2Pressed && m_jumpPressed && m_middleMousePressed && m_isSliding)
+            {
+                // tired of non assigned variable console alert
             }
         }
         private void LateUpdate()

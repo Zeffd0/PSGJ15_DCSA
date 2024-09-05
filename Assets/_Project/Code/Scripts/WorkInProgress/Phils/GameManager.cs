@@ -12,6 +12,10 @@ namespace PSGJ15_DCSA.Core
     public class GameManager : IndestructibleSingletonBehaviour<GameManager>
     {
         [SerializeField] private SceneHandler m_sceneHandler;
+        private GameObject m_referenceToPlayer;
+
+        public GameObject ReferenceToPlayer { get => m_referenceToPlayer ; set => m_referenceToPlayer = value; }
+        
         // [SerializeField] private DA_GameStates m_GameStates;
 
         // public DA_GameStates GameStates { get => m_GameStates; set => m_GameStates = value; }

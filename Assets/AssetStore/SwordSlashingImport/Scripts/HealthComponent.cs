@@ -30,18 +30,15 @@ namespace PSGJ15_DCSA
         private void Awake()
         {
             m_currentHealth = m_maxHealth;
-            if(m_meshRenderer == null)
-                m_meshRenderer = GetComponent<MeshRenderer>();
-
-            if (m_audioSource == null)
-                m_audioSource = GetComponent<AudioSource>();
-
-            if (m_deathAnimation == null)
-                m_deathAnimation = GetComponent<Animator>();
+            if (m_meshRenderer == null) m_meshRenderer = GetComponent<MeshRenderer>();
+            if (m_audioSource == null)m_audioSource = GetComponent<AudioSource>();
+            if (m_deathAnimation == null)m_deathAnimation = GetComponent<Animator>();
             
+            if (m_meshRenderer != null)
             m_canDissolve = m_meshRenderer.material.HasProperty(m_dissolvePropertyName);
-
-            //StartCoroutine(DelayedComponentCheck());
+            m_hasMeshRenderer = m_meshRenderer != null;
+            m_hasAudioSource = m_audioSource != null;
+            m_hasDeathAnimation = m_deathAnimation != null && m_deathAnimation.HasState(0, Animator.StringToHash("Death"));
         }
 
         public void TakeDamage(int amount)
@@ -111,16 +108,16 @@ namespace PSGJ15_DCSA
             m_meshRenderer.material.SetFloat(m_dissolvePropertyName, 1f);
         }
 
-        private IEnumerator DelayedComponentCheck()
-        {
-            yield return new WaitForSeconds(1f);
+        // private IEnumerator DelayedComponentCheck()
+        // {
+        //     yield return new WaitForSeconds(1f);
 
-            m_hasMeshRenderer = m_meshRenderer != null;
-            m_hasAudioSource = m_audioSource != null;
-            m_hasDeathAnimation = m_deathAnimation != null && m_deathAnimation.HasState(0, Animator.StringToHash("Death"));
-            m_canDissolve = m_meshRenderer.material.HasProperty(m_dissolvePropertyName);
+        //     m_hasMeshRenderer = m_meshRenderer != null;
+        //     m_hasAudioSource = m_audioSource != null;
+        //     m_hasDeathAnimation = m_deathAnimation != null && m_deathAnimation.HasState(0, Animator.StringToHash("Death"));
+        //     m_canDissolve = m_meshRenderer.material.HasProperty(m_dissolvePropertyName);
 
-        }
+        // }
 
         private void HandleVFX(GameObject[] vfxArray, ParticleSystem particleSystem)
         {

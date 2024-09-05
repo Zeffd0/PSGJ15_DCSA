@@ -65,7 +65,6 @@ namespace PSGJ15_DCSA.Core
 
         public void OnSceneLoaded(Scene scene)
         {
-            Debug.Log("do I ever even come in here wtf?");
             if (m_sceneTypeDictionnary.TryGetValue(scene.name, out SceneTypes view))
             {
                 if(m_viewHandlers.TryGetValue(view, out var handler))
@@ -79,17 +78,17 @@ namespace PSGJ15_DCSA.Core
         {
             var m_GameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
             m_GameStates.InvokeChangeGameState(this, GameState.Menu);
-            Debug.Log("Loading intro stuff");
+            //Debug.Log("Loading intro stuff");
         }
 
         private void InitWorld()
         {
-            Debug.Log("Loading world stuff");
+            //Debug.Log("Loading world stuff");
         }
 
         private void InitGym()
         {
-            Debug.Log("Loading gym stuff");
+            //Debug.Log("Loading gym stuff");
             var m_GameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
             m_GameStates.InvokeChangeGameState(this, GameState.Play);     
         }
