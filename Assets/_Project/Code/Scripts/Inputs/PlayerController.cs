@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using PSGJ15_DCSA.Enums;
 using PSGJ15_DCSA.Core.DependencyAgents;
+using PSGJ15_DCSA.Interfaces;
+using PSGJ15_DCSA.Core;
 
 namespace PSGJ15_DCSA.Inputs
 {
@@ -53,7 +55,7 @@ namespace PSGJ15_DCSA.Inputs
         public float attackDelay = 0.4f;
         public float attackSpeed = 1f;
         public int attackDamage = 1;
-        public LayerMask attackLayer;
+        private LayerMask m_attackLayer;
         public GameObject hitEffect;
         public AudioClip swordSwing;
         public AudioClip hitSound;
@@ -107,7 +109,7 @@ namespace PSGJ15_DCSA.Inputs
             m_DAGameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
             //m_DAGameStates.InitGameState(); // todo:: potentially displace this to a class that handles game states globally later
             m_DAGameStates.OnGameStateChanged += HandleToggleActiveInputs;
-
+            m_attackLayer = LayerMask.GetMask("Enemy");
         }
 
         private void Start()
@@ -134,7 +136,8 @@ namespace PSGJ15_DCSA.Inputs
             m_input.ShiftCanceled += HandleShift;
             //m_DAGameStates.OnGameStateChanged += HandleToggleActiveInputs;
 
-
+            // adds itself to a reference ennemmies can find
+            GameManager.Instance.ReferenceToPlayer = gameObject;
         }
 
         private void OnDisable()
@@ -165,6 +168,11 @@ namespace PSGJ15_DCSA.Inputs
             if(m_mouse1Pressed)
             {
                 Attack();
+            }
+
+            if(m_mouse2Pressed && m_jumpPressed && m_middleMousePressed && m_isSliding)
+            {
+                // tired of non assigned variable console alert
             }
         }
         private void LateUpdate()
@@ -383,24 +391,26 @@ namespace PSGJ15_DCSA.Inputs
             }
         }
 
-        void ResetAttack()
+        private void ResetAttack()
         {
             attacking = false;
             readyToAttack = true;
         }
 
-        void AttackRaycast()
+        private void AttackRaycast()
         {
-            if(Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, attackDistance, attackLayer))
+            if(Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, attackDistance, m_attackLayer))
             { 
                 HitTarget(hit.point);
 
-                if(hit.transform.TryGetComponent<Actor>(out Actor T))
-                { T.TakeDamage(attackDamage); }
+                if(hit.collider.TryGetComponent(out IDamageable damageable))
+                { 
+                    damageable.TakeDamage(attackDamage);
+                }
             } 
         }
 
-        void HitTarget(Vector3 pos)
+        private void HitTarget(Vector3 pos)
         {
             audioSource.pitch = 1;
             audioSource.PlayOneShot(hitSound);

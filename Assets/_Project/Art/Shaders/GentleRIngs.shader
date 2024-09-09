@@ -2,6 +2,7 @@ Shader "Unlit/GentleRings"
 {
     Properties
     {
+        _Resolution ("Resolution", Float) = 1.0
     }
     SubShader
     {
@@ -29,6 +30,8 @@ Shader "Unlit/GentleRings"
 
             #define PI 3.141596
 
+            float _Resolution;
+
             float3 a = float3(0.5, 0.5, 0.5);
             float3 b = float3(0.5, 0.5, 0.5);
             float3 c = float3(1.0, 1.0, 1.0);
@@ -49,9 +52,10 @@ Shader "Unlit/GentleRings"
 
             float4 frag (v2f i) : SV_Target
             {
-                float2 uv = i.uv;
-                uv -= 0.5;
-                uv.x *= _ScreenParams.x / _ScreenParams.y;
+                float2 uv = i.uv - 0.5;
+
+                // Apply resolution scaling
+                uv *= _Resolution;
 
                 float r = length(uv);
                 float a = atan2(uv.y, uv.x);
