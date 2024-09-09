@@ -55,7 +55,7 @@ namespace PSGJ15_DCSA.Inputs
         public float attackDelay = 0.4f;
         public float attackSpeed = 1f;
         public int attackDamage = 1;
-        public LayerMask attackLayer;
+        private LayerMask m_attackLayer;
         public GameObject hitEffect;
         public AudioClip swordSwing;
         public AudioClip hitSound;
@@ -109,7 +109,7 @@ namespace PSGJ15_DCSA.Inputs
             m_DAGameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
             //m_DAGameStates.InitGameState(); // todo:: potentially displace this to a class that handles game states globally later
             m_DAGameStates.OnGameStateChanged += HandleToggleActiveInputs;
-
+            m_attackLayer = LayerMask.GetMask("Enemy");
         }
 
         private void Start()
@@ -399,7 +399,7 @@ namespace PSGJ15_DCSA.Inputs
 
         private void AttackRaycast()
         {
-            if(Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, attackDistance, attackLayer))
+            if(Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, attackDistance, m_attackLayer))
             { 
                 HitTarget(hit.point);
 

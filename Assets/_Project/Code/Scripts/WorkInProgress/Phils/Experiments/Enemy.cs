@@ -1,5 +1,6 @@
 using PSGJ15_DCSA.Core;
 using PSGJ15_DCSA.Core.SimplifiedBehaviorTree;
+using PSGJ15_DCSA.Interfaces;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -28,13 +29,24 @@ namespace  PSGJ15_DCSA
 
         public void OnAttackAnimationHit()
         {
-            // raycast around where the hand is, maybe a spherecast actually, or just add a box collider?
-            // would have to find the bone and maybe add a socket to it? or just use the hand?
-            // it would detect if it collided / raycasted the player
-            // if it's a player, access the healthcomponent of the player and ping takedamage.
+            float sphereCastRadius = 0.5f;
+            float attackRange = 2f;
+            LayerMask targetLayers = LayerMask.GetMask("Player"); 
 
-            m_healthComponent.TakeDamage(1); // 1 is a placeholder for now
-            Debug.Log("Attack animation hit point reached!");
+            Transform attackOrigin = transform; // Change this if you have a specific point to cast from
+
+            if (Physics.SphereCast(attackOrigin.position, sphereCastRadius, attackOrigin.forward, out RaycastHit hit, attackRange, targetLayers))
+            {
+                if (hit.collider.TryGetComponent(out IDamageable damageable))
+                {
+                    damageable.TakeDamage(1);
+                    Debug.Log($"Hit {hit.collider.gameObject.name} and dealt {1} damage!");
+                }
+            }
+            else
+            {
+                Debug.Log("Attack animation hit point reached, but no target was hit.");
+            }
         }
 
         private void OnAnimatorMove()

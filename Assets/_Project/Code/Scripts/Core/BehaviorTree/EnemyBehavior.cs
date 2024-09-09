@@ -51,7 +51,6 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
             // Attack sequence
             var attackSequence = new Sequence();
             attackSequence.AddChild(new ConditionNode(IsPlayerInAttackRange));
-            attackSequence.AddChild(new ConditionNode(CanAttack));
             attackSequence.AddChild(new ActionNode(PerformAttack));
 
             // Chase sequence
@@ -77,11 +76,6 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
 
         // Condition methods
         #region Conditions
-
-        private bool CanAttack()
-        {
-            return Time.time - m_lastAttackTime >= m_attackCooldown;
-        }
         private bool IsPlayerInAttackRange()
         {
             return Vector3.Distance(m_enemyReference.transform.position, m_playerTransform.position) <= m_attackRange;
@@ -95,7 +89,7 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
             float distanceToPlayer = directionToPlayer.magnitude;
 
             // Check if player is within attack range
-            if (distanceToPlayer <= m_attackRange) return true; // Close enough to attack, so definitely in sight
+            if (distanceToPlayer <= m_attackRange) return true;
 
             // Check if player is within detection range (for when player is behind the enemy)
             if (distanceToPlayer <= m_detectionRange) return true;
@@ -114,12 +108,6 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
 
             return false;
         }
-
-        // bool IsPlayerInDetectionRange()
-        // {
-        //     float distanceToPlayer = Vector3.Distance(m_enemyReference.transform.position, m_playerTransform.position);
-        //     return distanceToPlayer <= m_detectionRange && distanceToPlayer > m_attackRange;
-        // }
 
         private bool ShouldIdle()
         {
@@ -140,10 +128,8 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
             Vector3 directionToPlayer = (m_playerTransform.position - m_enemyReference.transform.position).normalized;
             m_enemyReference.transform.rotation = Quaternion.LookRotation(directionToPlayer);
 
-            //m_enemyReference.Attack();
-
-            Debug.Log("Performing attack");
-            return NodeState.SUCCESS;
+            //Debug.Log("Performing attack");
+            return NodeState.RUNNING;
         }
 
         private NodeState ChasePlayer()
@@ -272,71 +258,3 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
         #endregion
     }
 }
-
-
-        // NodeState ChasePlayer()
-        // {
-        //     // switch (m_currentChaseState)
-        //     // {
-        //     //     case ChaseState.StartChasing:
-        //     //         m_animator.SetTrigger("InterruptIdle");
-        //     //         m_animator.SetTrigger("InterruptWalking");
-
-        //     //         m_animator.SetBool("isWalking", false);
-        //     //         m_animator.SetBool("isIdling", false);
-        //     //         m_animator.SetBool("isChasing", true);
-        //     //         //m_currentChaseState = ChaseState.Chasing;
-        //     //         Debug.Log("Started chasing player");
-        //     //         m_agent.SetDestination(m_playerTransform.position);
-        //     //         break;
-
-        //     //     case ChaseState.Chasing:
-        //     //         m_agent.SetDestination(m_playerTransform.position);
-        //     //         // if (!IsPlayerInSight())
-        //     //         // {
-        //     //         //     m_currentChaseState = ChaseState.StopChasing;
-        //     //         // }
-        //     //         //Debug.Log("Chasing player");
-        //     //         break;
-
-        //     //     // case ChaseState.StopChasing:
-        //     //     //     m_animator.SetBool("isChasing", false);
-        //     //     //     m_animator.SetBool("isWalking", true);
-        //     //     //     m_currentChaseState = ChaseState.StartChasing;
-        //     //     //     Debug.Log("Stopped chasing player, transitioning to walk");
-        //     //     //     return NodeState.FAILURE;
-        //     // }
-
-        //     m_animator.SetTrigger("InterruptIdle");
-        //     m_animator.SetTrigger("InterruptWalking");
-        //     m_animator.SetBool("isWalking", false);
-        //     m_animator.SetBool("isIdling", false);
-        //     m_animator.SetBool("isChasing", true);
-        //     m_agent.SetDestination(m_playerTransform.position);
-        //     //Debug.Log("Started chasing player");
-
-        //     return NodeState.RUNNING;
-        // }
-
-        
-        // private void UpdateAnimation()
-        // {
-        //     switch (m_currentPatrolState)
-        //     {
-        //         case PatrolState.Moving:
-        //             m_animator.SetFloat("Speed", m_agent.velocity.magnitude);
-        //             m_animator.SetBool("isIdling", false);
-        //             m_animator.SetBool("isWalking", true);
-        //             break;
-        //         case PatrolState.Turning:
-        //             m_animator.SetFloat("Speed", 0);
-        //             m_animator.SetBool("isWalking", false);
-        //             // You could trigger a turn animation here if you have one
-        //             break;
-        //         case PatrolState.Idling:
-        //             m_animator.SetFloat("Speed", 0);
-        //             m_animator.SetBool("isWalking", false);
-        //             m_animator.SetBool("isIdling", true);
-        //             break;
-        //     }
-        // }

@@ -15,7 +15,6 @@ namespace  PSGJ15_DCSA
             if (m_meshRenderer == null) m_meshRenderer = GetComponent<MeshRenderer>();
             if (m_meshRenderer != null)
             m_canDissolve = m_meshRenderer.material.HasProperty(m_dissolvePropertyName);
-
         }
 
         protected override IEnumerator Death()

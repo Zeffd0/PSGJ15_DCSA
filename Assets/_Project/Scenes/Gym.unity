@@ -820,7 +820,7 @@ GameObject:
   - component: {fileID: 58751844}
   - component: {fileID: 58751843}
   - component: {fileID: 58751842}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: DestroyableObject (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1559,7 +1559,7 @@ GameObject:
   - component: {fileID: 159379173}
   - component: {fileID: 159379172}
   - component: {fileID: 159379171}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: DestroyableObject (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9998,7 +9998,7 @@ GameObject:
   - component: {fileID: 644257824}
   - component: {fileID: 644257823}
   - component: {fileID: 644257822}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: DestroyableObject (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11761,7 +11761,7 @@ GameObject:
   - component: {fileID: 762592191}
   - component: {fileID: 762592190}
   - component: {fileID: 762592189}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: DestroyableObject (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12215,7 +12215,7 @@ GameObject:
   - component: {fileID: 860016704}
   - component: {fileID: 860016703}
   - component: {fileID: 860016702}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: DestroyableObject (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13750,9 +13750,6 @@ MonoBehaviour:
   attackDelay: 0.4
   attackSpeed: 1
   attackDamage: 1
-  attackLayer:
-    serializedVersion: 2
-    m_Bits: 0
   hitEffect: {fileID: 0}
   swordSwing: {fileID: 0}
   hitSound: {fileID: 0}
@@ -21012,7 +21009,7 @@ GameObject:
   - component: {fileID: 1853679208}
   - component: {fileID: 1853679207}
   - component: {fileID: 1853679212}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: DestroyableObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21833,7 +21830,7 @@ GameObject:
   - component: {fileID: 1992268115}
   - component: {fileID: 1992268114}
   - component: {fileID: 1992268113}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: DestroyableObject (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22091,7 +22088,7 @@ GameObject:
   - component: {fileID: 1999603401}
   - component: {fileID: 1999603400}
   - component: {fileID: 1999603399}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: DestroyableObject (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24191,8 +24188,9 @@ GameObject:
   - component: {fileID: 6996601189512493603}
   - component: {fileID: 45254124598440628}
   - component: {fileID: 5146889616656643722}
-  - component: {fileID: 5810669665238102468}
-  m_Layer: 0
+  - component: {fileID: 6996601189512493604}
+  - component: {fileID: 6996601189512493605}
+  m_Layer: 8
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24419,9 +24417,10 @@ GameObject:
   - component: {fileID: 2484499565506740463}
   - component: {fileID: 1788623315714131591}
   - component: {fileID: 2484499565506740462}
-  m_Layer: 0
+  - component: {fileID: 2484499565506740464}
+  m_Layer: 6
   m_Name: ImportedPlayer
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -24813,12 +24812,25 @@ MonoBehaviour:
   attackDelay: 0.4
   attackSpeed: 1
   attackDamage: 1
-  attackLayer:
-    serializedVersion: 2
-    m_Bits: 64
   hitEffect: {fileID: 5334228485563152753, guid: 0134bdc80242c974b88f68d7bb298ed9, type: 3}
   swordSwing: {fileID: 8300000, guid: 7923190c5e80b4d4d9396acc5d0b48cf, type: 3}
   hitSound: {fileID: 8300000, guid: 11245d3945c564b45a1bafad5ecb70e5, type: 3}
+--- !u!114 &2484499565506740464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1788623315714131589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b70d5f8f3906676498e1fe9edefdcd46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_maxHealth: 100
+  m_damageReceivedVFX: []
+  m_deathVFX: []
+  healthSlider: {fileID: 0}
 --- !u!1 &2488951147439385235
 GameObject:
   m_ObjectHideFlags: 0
@@ -26677,26 +26689,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &5810669665238102468
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1698848488386429805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07cd3daaa63586a4e9eeb29c8eff8ca7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_maxHealth: 5
-  m_dissolveDuration: 2
-  damageableType: 4
-  m_meshRenderer: {fileID: 0}
-  m_audioSource: {fileID: 0}
-  m_damageReceivedVFX: []
-  m_breakingVFX: []
-  m_deathAnimation: {fileID: 0}
 --- !u!1 &5829107165461042626
 GameObject:
   m_ObjectHideFlags: 0
@@ -27255,6 +27247,47 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6996601189512493604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698848488386429805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9bdad606dc33d0439a794030bfa1cb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_maxHealth: 2
+  m_damageReceivedVFX: []
+  m_deathVFX: []
+  m_hitVFXPrefab: {fileID: 0}
+  m_hitSFX: {fileID: 0}
+  m_deathSFX: {fileID: 0}
+--- !u!136 &6996601189512493605
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698848488386429805}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1.5
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.67, z: 0}
 --- !u!1 &7016291290384248488
 GameObject:
   m_ObjectHideFlags: 0
