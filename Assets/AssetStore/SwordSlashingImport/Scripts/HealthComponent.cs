@@ -19,7 +19,6 @@ namespace PSGJ15_DCSA
         [SerializeField] private GameObject[] m_damageReceivedVFX;
         [SerializeField] private GameObject[] m_breakingVFX;
         [SerializeField] private Animator m_deathAnimation;
-
         private ParticleSystem m_damageReceivedParticleSystem;
         private ParticleSystem m_breakingParticleSystem;
         private bool m_canDissolve;
@@ -107,17 +106,6 @@ namespace PSGJ15_DCSA
             }
             m_meshRenderer.material.SetFloat(m_dissolvePropertyName, 1f);
         }
-
-        // private IEnumerator DelayedComponentCheck()
-        // {
-        //     yield return new WaitForSeconds(1f);
-
-        //     m_hasMeshRenderer = m_meshRenderer != null;
-        //     m_hasAudioSource = m_audioSource != null;
-        //     m_hasDeathAnimation = m_deathAnimation != null && m_deathAnimation.HasState(0, Animator.StringToHash("Death"));
-        //     m_canDissolve = m_meshRenderer.material.HasProperty(m_dissolvePropertyName);
-
-        // }
 
         private void HandleVFX(GameObject[] vfxArray, ParticleSystem particleSystem)
         {

@@ -391,13 +391,13 @@ namespace PSGJ15_DCSA.Inputs
             }
         }
 
-        void ResetAttack()
+        private void ResetAttack()
         {
             attacking = false;
             readyToAttack = true;
         }
 
-        void AttackRaycast()
+        private void AttackRaycast()
         {
             if(Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, attackDistance, attackLayer))
             { 
@@ -410,7 +410,7 @@ namespace PSGJ15_DCSA.Inputs
             } 
         }
 
-        void HitTarget(Vector3 pos)
+        private void HitTarget(Vector3 pos)
         {
             audioSource.pitch = 1;
             audioSource.PlayOneShot(hitSound);

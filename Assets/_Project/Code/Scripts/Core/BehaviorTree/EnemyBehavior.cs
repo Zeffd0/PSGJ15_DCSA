@@ -12,18 +12,22 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
         private NavMeshAgent m_agent;
         private List<Vector3> m_patrolPoints;
         private int m_currentPatrolIndex = 0;
-        private float m_patrolWaitTime = 2f;
+        private float m_patrolWaitTime = 3f;
         private float m_patrolTimer = 0f;
-        private float m_arrivalDistance = 0.5f; // Adjust this value as needed
-        private float m_idleTime = 3f; // Time to idle at each patrol point
-        private float m_detectionRange = 10f; // Range to detect player
-        private float m_attackRange = 2f; // Range to attack player
+        private float m_arrivalDistance = 0.5f;
+        private float m_detectionRange = 2f;
+        private float m_attackRange = 1f;
         private Transform m_playerTransform;
         private float m_sightRange = 10f;
         private float m_sightAngle = 90f;
+        private float m_rotationSpeed = 2f;
+        private float m_attackCooldown = 2f;
+        private float m_lastAttackTime = 0f;
+
+        private enum PatrolState { Moving, Turning, Idling }
+        private PatrolState m_currentPatrolState = PatrolState.Moving;
 
         public Vector3? CurrentPatrolPoint => m_patrolPoints.Count > 0 ? m_patrolPoints[m_currentPatrolIndex] : null;
-
 
         public void Init(Enemy enemy, NavMeshAgent navAgent, Animator anim)
         {
@@ -32,6 +36,7 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
             m_animator = anim;
             SetupPatrolPoints();
             SetupBehaviorTree();
+            m_playerTransform = GameManager.Instance.ReferenceToPlayer.transform;
         }
 
         public void Tick()
@@ -39,24 +44,25 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
             m_root.Evaluate();
         }
 
-        void SetupBehaviorTree()
+        private void SetupBehaviorTree()
         {
             m_root = new Selector();
 
             // Attack sequence
             var attackSequence = new Sequence();
             attackSequence.AddChild(new ConditionNode(IsPlayerInAttackRange));
+            attackSequence.AddChild(new ConditionNode(CanAttack));
             attackSequence.AddChild(new ActionNode(PerformAttack));
 
             // Chase sequence
             var chaseSequence = new Sequence();
-            chaseSequence.AddChild(new ConditionNode(IsPlayerInDetectionRange));
+            chaseSequence.AddChild(new ConditionNode(IsPlayerInSight));
             chaseSequence.AddChild(new ActionNode(ChasePlayer));
 
             // Patrol sequence
             var patrolSequence = new Sequence();
             patrolSequence.AddChild(new ActionNode(Patrol));
-            
+
             // Idle sequence
             var idleSequence = new Sequence();
             idleSequence.AddChild(new ConditionNode(ShouldIdle));
@@ -70,104 +76,15 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
         }
 
         // Condition methods
-        bool IsPlayerInAttackRange()
+        #region Conditions
+
+        private bool CanAttack()
         {
-            // TODO: Check if player is within attackRange
-            return false;
+            return Time.time - m_lastAttackTime >= m_attackCooldown;
         }
-
-        bool IsPlayerInDetectionRange()
+        private bool IsPlayerInAttackRange()
         {
-            // TODO: Check if player is within detectionRange but outside attackRange
-            return false;
-        }
-
-        bool ShouldIdle()
-        {
-            // TODO: Check if we've reached a patrol point and should idle
-            return false;
-        }
-
-        // Action methods
-        NodeState PerformAttack()
-        {
-            // TODO: Implement attack logic
-            m_animator.SetTrigger("Attack");
-            Debug.Log("Performing attack");
-            return NodeState.SUCCESS;
-        }
-
-        NodeState ChasePlayer()
-        {
-            // TODO: Implement chase logic using NavMeshAgent
-            m_animator.SetBool("IsChasing", true);
-            Debug.Log("Chasing player");
-            return NodeState.RUNNING;
-        }
-
-        private NodeState Patrol()
-        {
-            if (m_patrolPoints.Count == 0)
-            {
-                Debug.LogWarning("No patrol points set up!");
-                return NodeState.FAILURE;
-            }
-
-            Vector3 currentDestination = m_patrolPoints[m_currentPatrolIndex];
-            float distanceToDestination = Vector3.Distance(m_agent.transform.position, currentDestination);
-
-           // Debug.Log($"Current patrol index: {m_currentPatrolIndex}, Distance to destination: {distanceToDestination}");
-
-            if (distanceToDestination <= m_arrivalDistance)
-            {
-                if (m_patrolTimer < m_patrolWaitTime)
-                {
-                    // Wait at the current point
-                    m_patrolTimer += Time.deltaTime;
-                    m_animator.SetFloat("Speed", 0);
-                    //Debug.Log($"Waiting at point {m_currentPatrolIndex}. Timer: {m_patrolTimer}");
-                    return NodeState.RUNNING;
-                }
-                else
-                {
-                    // Move to the next point
-                    m_currentPatrolIndex = (m_currentPatrolIndex + 1) % m_patrolPoints.Count;
-                    Vector3 nextDestination = m_patrolPoints[m_currentPatrolIndex];
-                    m_agent.SetDestination(nextDestination);
-                    m_patrolTimer = 0f;
-                    //Debug.Log($"Moving to next point. New index: {m_currentPatrolIndex}, New destination: {nextDestination}");
-                }
-            }
-            else if (!m_agent.pathPending && m_agent.remainingDistance < 0.1f)
-            {
-                // The agent thinks it has arrived, but our distance check disagrees so we force move to the exact position
-                m_agent.Warp(currentDestination);
-                //Debug.Log("Forced warp to destination due to small remaining distance");
-            }
-
-            // Move towards the current patrol point
-            m_animator.SetFloat("Speed", m_agent.velocity.magnitude);
-            return NodeState.RUNNING;
-        }
-
-        NodeState PerformIdle()
-        {
-            // TODO: Implement idle logic
-            // - Start a coroutine to idle for idleTime seconds
-            m_animator.SetBool("IsWalking", false);
-            Debug.Log("Idling");
-            return NodeState.RUNNING;
-        }
-
-        public void SetupPatrolPoints()
-        {
-            // TODO: Set up patrol points, either manually or procedurally
-            m_patrolPoints = NavMeshPointHolder.Points;
-            foreach (Vector3 point in m_patrolPoints)
-            {
-                //Debug.Log("NavMesh Point: " + point);
-            }
-            // Add patrol points...
+            return Vector3.Distance(m_enemyReference.transform.position, m_playerTransform.position) <= m_attackRange;
         }
 
         private bool IsPlayerInSight()
@@ -177,6 +94,13 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
             Vector3 directionToPlayer = m_playerTransform.position - m_enemyReference.transform.position;
             float distanceToPlayer = directionToPlayer.magnitude;
 
+            // Check if player is within attack range
+            if (distanceToPlayer <= m_attackRange) return true; // Close enough to attack, so definitely in sight
+
+            // Check if player is within detection range (for when player is behind the enemy)
+            if (distanceToPlayer <= m_detectionRange) return true;
+
+            // Check if player is within sight range and angle
             if (distanceToPlayer <= m_sightRange)
             {
                 float angleToPlayer = Vector3.Angle(m_enemyReference.transform.forward, directionToPlayer);
@@ -190,5 +114,229 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
 
             return false;
         }
+
+        // bool IsPlayerInDetectionRange()
+        // {
+        //     float distanceToPlayer = Vector3.Distance(m_enemyReference.transform.position, m_playerTransform.position);
+        //     return distanceToPlayer <= m_detectionRange && distanceToPlayer > m_attackRange;
+        // }
+
+        private bool ShouldIdle()
+        {
+            return m_currentPatrolState == PatrolState.Idling;
+        }
+        #endregion
+
+        // Action methods
+        #region Actions
+        private NodeState PerformAttack()
+        {
+            m_agent.isStopped = true;
+            m_animator.SetTrigger("StopAnimation");
+            m_animator.SetBool("isChasing", false);
+            m_animator.SetBool("isAttacking", true);
+            m_lastAttackTime = Time.time;
+
+            Vector3 directionToPlayer = (m_playerTransform.position - m_enemyReference.transform.position).normalized;
+            m_enemyReference.transform.rotation = Quaternion.LookRotation(directionToPlayer);
+
+            //m_enemyReference.Attack();
+
+            Debug.Log("Performing attack");
+            return NodeState.SUCCESS;
+        }
+
+        private NodeState ChasePlayer()
+        {
+            m_animator.SetTrigger("StopAnimation");
+            m_animator.SetBool("isAttacking", false);
+            m_animator.SetBool("isWalking", false);
+            m_animator.SetBool("isIdling", false);
+            m_animator.SetBool("isChasing", true);
+            m_agent.SetDestination(m_playerTransform.position);
+
+            return NodeState.RUNNING;
+        }
+
+        private NodeState Patrol()
+        {
+            m_animator.ResetTrigger("StopAnimation");
+            if (m_patrolPoints.Count == 0)
+            {
+                Debug.LogWarning("No patrol points set up!");
+                return NodeState.FAILURE;
+            }
+
+            m_animator.SetBool("isChasing", false);
+
+            switch (m_currentPatrolState)
+            {
+                case PatrolState.Moving:
+                    if (ReachedDestination())
+                    {
+                        m_currentPatrolState = PatrolState.Idling;
+                        m_patrolTimer = 0f;
+                        //Debug.Log($"Reached destination. Switching to Idle state.");
+                    }
+                    else
+                    {
+                        m_agent.isStopped = false;
+                        m_agent.SetDestination(m_patrolPoints[m_currentPatrolIndex]);
+                    }
+
+                    m_animator.SetFloat("Speed", m_agent.velocity.magnitude);
+                    m_animator.SetBool("isIdling", false);
+                    m_animator.SetBool("isWalking", true);
+                    break;
+
+                case PatrolState.Idling:
+                    m_agent.isStopped = true;
+                    if (m_patrolTimer >= m_patrolWaitTime)
+                    {
+                        m_currentPatrolState = PatrolState.Turning;
+                        SetNextPatrolPoint();
+                        //Debug.Log($"Idle time complete. Switching to Turning state. New patrol index: {m_currentPatrolIndex}");
+                    }
+                    else
+                    {
+                        m_patrolTimer += Time.deltaTime;
+                    }
+                    m_animator.SetFloat("Speed", 0);
+                    m_animator.SetBool("isWalking", false);
+                    m_animator.SetBool("isIdling", true);
+                    break;
+
+                case PatrolState.Turning:
+                    if (FacingNextPoint())
+                    {
+                        m_currentPatrolState = PatrolState.Moving;
+                        //Debug.Log("Facing next point. Switching to Moving state.");
+                    }
+                    else
+                    {
+                        TurnTowardsNextPoint();
+                    }
+                    m_animator.SetBool("isWalking", false);
+                    // look for a turning animation and insert here
+                    break;
+            }
+            return NodeState.RUNNING;
+        }
+
+        private NodeState PerformIdle()
+        {
+            m_animator.SetBool("IsWalking", false);
+            Debug.Log("Idling");
+            return NodeState.RUNNING;
+        }
+
+        #endregion
+
+        public void SetupPatrolPoints()
+        {
+            // When we get the singleton data holder, the class that's doing it should be replaced and we just fetch it from there.
+            // Could pimp up this function or if it's still a 1 liner we can just put this line
+            m_patrolPoints = NavMeshPointHolder.Points;
+            // foreach (Vector3 point in m_patrolPoints)
+            // {
+            //     //Debug.Log("NavMesh Point: " + point);
+            // }
+        }
+
+        #region Functions
+
+        private bool ReachedDestination()
+        {
+            return Vector3.Distance(m_agent.transform.position, m_patrolPoints[m_currentPatrolIndex]) <= m_arrivalDistance;
+        }
+
+        private void SetNextPatrolPoint()
+        {
+            m_currentPatrolIndex = (m_currentPatrolIndex + 1) % m_patrolPoints.Count;
+            m_agent.SetDestination(m_patrolPoints[m_currentPatrolIndex]);
+        }
+
+        private bool FacingNextPoint()
+        {
+            Vector3 directionToTarget = (m_patrolPoints[m_currentPatrolIndex] - m_agent.transform.position).normalized;
+            float dot = Vector3.Dot(m_agent.transform.forward, directionToTarget);
+            return dot > 0.95f; // Roughly within 18 degrees
+        }
+
+        private void TurnTowardsNextPoint()
+        {
+            Vector3 directionToTarget = (m_patrolPoints[m_currentPatrolIndex] - m_agent.transform.position).normalized;
+            Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
+            m_agent.transform.rotation = Quaternion.Slerp(m_agent.transform.rotation, targetRotation, Time.deltaTime * m_rotationSpeed);
+        }
+        #endregion
     }
 }
+
+
+        // NodeState ChasePlayer()
+        // {
+        //     // switch (m_currentChaseState)
+        //     // {
+        //     //     case ChaseState.StartChasing:
+        //     //         m_animator.SetTrigger("InterruptIdle");
+        //     //         m_animator.SetTrigger("InterruptWalking");
+
+        //     //         m_animator.SetBool("isWalking", false);
+        //     //         m_animator.SetBool("isIdling", false);
+        //     //         m_animator.SetBool("isChasing", true);
+        //     //         //m_currentChaseState = ChaseState.Chasing;
+        //     //         Debug.Log("Started chasing player");
+        //     //         m_agent.SetDestination(m_playerTransform.position);
+        //     //         break;
+
+        //     //     case ChaseState.Chasing:
+        //     //         m_agent.SetDestination(m_playerTransform.position);
+        //     //         // if (!IsPlayerInSight())
+        //     //         // {
+        //     //         //     m_currentChaseState = ChaseState.StopChasing;
+        //     //         // }
+        //     //         //Debug.Log("Chasing player");
+        //     //         break;
+
+        //     //     // case ChaseState.StopChasing:
+        //     //     //     m_animator.SetBool("isChasing", false);
+        //     //     //     m_animator.SetBool("isWalking", true);
+        //     //     //     m_currentChaseState = ChaseState.StartChasing;
+        //     //     //     Debug.Log("Stopped chasing player, transitioning to walk");
+        //     //     //     return NodeState.FAILURE;
+        //     // }
+
+        //     m_animator.SetTrigger("InterruptIdle");
+        //     m_animator.SetTrigger("InterruptWalking");
+        //     m_animator.SetBool("isWalking", false);
+        //     m_animator.SetBool("isIdling", false);
+        //     m_animator.SetBool("isChasing", true);
+        //     m_agent.SetDestination(m_playerTransform.position);
+        //     //Debug.Log("Started chasing player");
+
+        //     return NodeState.RUNNING;
+        // }
+
+        
+        // private void UpdateAnimation()
+        // {
+        //     switch (m_currentPatrolState)
+        //     {
+        //         case PatrolState.Moving:
+        //             m_animator.SetFloat("Speed", m_agent.velocity.magnitude);
+        //             m_animator.SetBool("isIdling", false);
+        //             m_animator.SetBool("isWalking", true);
+        //             break;
+        //         case PatrolState.Turning:
+        //             m_animator.SetFloat("Speed", 0);
+        //             m_animator.SetBool("isWalking", false);
+        //             // You could trigger a turn animation here if you have one
+        //             break;
+        //         case PatrolState.Idling:
+        //             m_animator.SetFloat("Speed", 0);
+        //             m_animator.SetBool("isWalking", false);
+        //             m_animator.SetBool("isIdling", true);
+        //             break;
+        //     }
+        // }
