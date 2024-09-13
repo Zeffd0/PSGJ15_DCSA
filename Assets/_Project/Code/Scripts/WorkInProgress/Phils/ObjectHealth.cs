@@ -16,6 +16,11 @@ namespace  PSGJ15_DCSA
             if (m_meshRenderer != null)
             m_canDissolve = m_meshRenderer.material.HasProperty(m_dissolvePropertyName);
         }
+        public override void TakeDamage(int amount)
+        {
+            base.TakeDamage(amount);
+            ShowDamage(amount);
+        }
 
         protected override IEnumerator Death()
         {

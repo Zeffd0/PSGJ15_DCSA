@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using PSGJ15_DCSA.Enums;
 using UnityEngine;
+using System.Diagnostics;
+
 
 namespace PSGJ15_DCSA.Core.DependencyAgents
 {
@@ -19,15 +21,15 @@ namespace PSGJ15_DCSA.Core.DependencyAgents
                     _instance = Resources.Load<REG_DependencyAgents>("ScriptableObjects/DependencyAgents/REG_DependencyAgents");
                     if(_instance == null)
                     {
-                        Debug.LogError("'REG_DependencyAgents' instance not found.");
+                        UnityEngine.Debug.LogError("'REG_DependencyAgents' instance not found.");
                     }
                 }
+
                 return _instance;
             }
         }
 
-        [SerializeField]
-        private List<DependencyAgentEntry> DependencyAgentsEntries = new List<DependencyAgentEntry>();
+        [SerializeField] private List<DependencyAgentEntry> DependencyAgentsEntries = new List<DependencyAgentEntry>();
         
         public ScriptableObject GetDependencyAgent(DependencyAgentType type)
         {
@@ -39,7 +41,6 @@ namespace PSGJ15_DCSA.Core.DependencyAgents
                 }
             }
 
-            Debug.Log($"Dependency Agent not found for type : {type}.");
             return null;
         }
     }

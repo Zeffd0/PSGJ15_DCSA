@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using PSGJ15_DCSA.Core.DependencyAgents;
 using PSGJ15_DCSA.Enums;
 using PSGJ15_DCSA.Interfaces;
+using Unity.Mathematics;
 
 
 namespace PSGJ15_DCSA.Core
@@ -23,6 +24,7 @@ namespace PSGJ15_DCSA.Core
             Other
         }
         [SerializeField] private DA_GameStates m_GameStates;
+        [SerializeField] private LevelData m_levelData;
 
         public bool isLoading;
         private Dictionary<string, SceneTypes> m_sceneTypeDictionnary;
@@ -39,7 +41,7 @@ namespace PSGJ15_DCSA.Core
             m_sceneTypeDictionnary = new Dictionary<string, SceneTypes>
             {
                 { "IntroScreen", SceneTypes.IntroScreen },
-                { "World", SceneTypes.World },
+                { "Empty", SceneTypes.World },
                 { "Gym", SceneTypes.Other },
             };
         }
@@ -52,6 +54,14 @@ namespace PSGJ15_DCSA.Core
                 {SceneTypes.World, InitWorld },
                 {SceneTypes.Other, InitGym },
             };
+        }
+
+        public void InitSceneHandling()
+        {
+            isLoading = false;
+            SceneManager.sceneLoaded += (scene, _) => OnSceneLoaded(scene);
+            InitializeSceneNameDictionnary();
+            InitializeViewHandlers();
         }
 
         public IEnumerator LoadSceneAsync(string sceneName, bool additive = false)
@@ -78,19 +88,33 @@ namespace PSGJ15_DCSA.Core
         {
             var m_GameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
             m_GameStates.InvokeChangeGameState(this, GameState.Menu);
-            //Debug.Log("Loading intro stuff");
         }
 
         private void InitWorld()
         {
-            //Debug.Log("Loading world stuff");
+            var m_GameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
+            m_GameStates.InvokeChangeGameState(this, GameState.Play);
         }
 
         private void InitGym()
         {
-            //Debug.Log("Loading gym stuff");
+            var spawnPoint = LevelInfo.Instance.GetSpawnPoint(0);
+            GameManager.Instance.ReferenceToPlayer = Instantiate(LevelInfo.Instance.levelData.PlayerPrefab, spawnPoint, quaternion.identity);
+
+            GameManager.Instance.HUD_Object = Instantiate(LevelInfo.Instance.levelData.HUD);
+            GameManager.Instance.HUD_Component = GameManager.Instance.HUD_Object.GetComponent<HUD>();
+
             var m_GameStates = (DA_GameStates)REG_DependencyAgents.Instance.GetDependencyAgent(DependencyAgentType.GameState);
-            m_GameStates.InvokeChangeGameState(this, GameState.Play);     
+            m_GameStates.InvokeChangeGameState(this, GameState.Play);
+        
+
+            
+            // spawn the ennemies ? or maybe the ennemy spawning mechanism
+        }
+
+        private void CleanUp()
+        {
+            // remove reference to the Player in the gamemanager
         }
     }
 }

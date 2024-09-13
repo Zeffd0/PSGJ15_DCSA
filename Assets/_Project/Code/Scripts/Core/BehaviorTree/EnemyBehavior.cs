@@ -21,8 +21,8 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
         private float m_sightRange = 10f;
         private float m_sightAngle = 90f;
         private float m_rotationSpeed = 2f;
-        private float m_attackCooldown = 2f;
-        private float m_lastAttackTime = 0f;
+        // private float m_attackCooldown = 2f;
+        // private float m_lastAttackTime = 0f;
 
         private enum PatrolState { Moving, Turning, Idling }
         private PatrolState m_currentPatrolState = PatrolState.Moving;
@@ -36,7 +36,8 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
             m_animator = anim;
             SetupPatrolPoints();
             SetupBehaviorTree();
-            m_playerTransform = GameManager.Instance.ReferenceToPlayer.transform;
+            //bandaid solution for now, until gamemanager is refactored properly
+            m_playerTransform = (GameManager.Instance?.ReferenceToPlayer != null) ? GameManager.Instance.ReferenceToPlayer.transform : enemy.transform;
         }
 
         public void Tick()
@@ -123,7 +124,7 @@ namespace PSGJ15_DCSA.Core.SimplifiedBehaviorTree
             m_animator.SetTrigger("StopAnimation");
             m_animator.SetBool("isChasing", false);
             m_animator.SetBool("isAttacking", true);
-            m_lastAttackTime = Time.time;
+            //m_lastAttackTime = Time.time;
 
             Vector3 directionToPlayer = (m_playerTransform.position - m_enemyReference.transform.position).normalized;
             m_enemyReference.transform.rotation = Quaternion.LookRotation(directionToPlayer);

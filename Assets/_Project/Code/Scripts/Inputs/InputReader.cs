@@ -178,7 +178,8 @@ namespace PSGJ15_DCSA.Inputs
                 m_PlayerInputs.Menu.SetCallbacks(this);
 
                 // Might need to get rid of this once we have menu up and running and enable MenuInputs once starting up
-                SetGameplayInputs();
+                //SetGameplayInputs();
+                SetMenuInputs();
             }
         }
         private void OnDisable()
@@ -208,13 +209,13 @@ namespace PSGJ15_DCSA.Inputs
         private void SetCursorToPlayMode()
         {
             //SetCursorToMenuMode(); // ???
-            //Cursor.lockState = CursorLockMode.Locked;
-            //Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
         private void SetCursorToMenuMode()
         {
-            // Cursor.lockState = CursorLockMode.Confined;
-            // Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
         }
 
         void ResetCursor()

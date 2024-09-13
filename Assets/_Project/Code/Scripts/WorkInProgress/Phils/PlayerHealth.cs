@@ -1,36 +1,43 @@
 using System.Collections;
+using PSGJ15_DCSA.Core;
 using UnityEngine;
 
 namespace PSGJ15_DCSA
 {
     public class PlayerHealth : HealthComponentBase
     {    
-        // Reference to the UI element that displays player health
-        [SerializeField] private UnityEngine.UI.Slider healthSlider;
+        private HUD m_HUD_Component;
+        private float m_TimeSinceLastDamage;
 
         protected override void Awake()
         {
             base.Awake();
-            // Initialize the health slider
-            if (healthSlider != null)
-            {
-                healthSlider.maxValue = m_maxHealth;
-                healthSlider.value = m_currentHealth;
-            }
+        }
+
+        private void Start()
+        {
+            m_HUD_Component = GameManager.Instance.HUD_Component;
+            m_HUD_Component.SetInitialHealth(m_currentHealth);
+        }
+
+        private void Update()
+        {
+            SimulateDamage();
         }
 
         public override void TakeDamage(int amount)
         {
             base.TakeDamage(amount);
-            UpdateHealthUI();
+            m_HUD_Component.UpdateHealthDisplay(amount);
         }
 
-        private void UpdateHealthUI()
+        private void SimulateDamage()
         {
-            // Update the UI element with the current health
-            if (healthSlider != null)
+            m_TimeSinceLastDamage += Time.deltaTime;
+            if (m_TimeSinceLastDamage >= 1f)
             {
-                healthSlider.value = m_currentHealth;
+                TakeDamage(1);
+                m_TimeSinceLastDamage = 0f;
             }
         }
 

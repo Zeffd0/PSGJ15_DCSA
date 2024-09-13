@@ -1,39 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using PSGJ15_DCSA.Core.DependencyAgents;
-
-using UnityEditor;
-using System.IO;
+using PSGJ15_DCSA.Interfaces;
 
 namespace PSGJ15_DCSA.Core
 {
-    public class GameManager : IndestructibleSingletonBehaviour<GameManager>
+    public class GameManager : IndestructibleSingletonBehaviour<GameManager>, IGameStateOperator
     {
         [SerializeField] private SceneHandler m_sceneHandler;
-        private GameObject m_referenceToPlayer;
-
-        public GameObject ReferenceToPlayer { get => m_referenceToPlayer ; set => m_referenceToPlayer = value; }
-        
-        // [SerializeField] private DA_GameStates m_GameStates;
-
-        // public DA_GameStates GameStates { get => m_GameStates; set => m_GameStates = value; }
+        public GameObject ReferenceToPlayer { get; set; }
+        public GameObject HUD_Object { get; set; }
+        public HUD HUD_Component {get; set; }
 
         protected override void OnSingletonAwake()
         {
-            initSceneHandling();
-            SetResolution();
-        }
-
-        #region Scene Handling
-
-        private void initSceneHandling()
-        {
-            m_sceneHandler.isLoading = false;
-            SceneManager.sceneLoaded += (scene, _) => m_sceneHandler.OnSceneLoaded(scene);
-            m_sceneHandler.InitializeSceneNameDictionnary();
-            m_sceneHandler.InitializeViewHandlers();
+            m_sceneHandler.InitSceneHandling();
         }
 
         public void LoadScene(string sceneName)
@@ -44,30 +23,5 @@ namespace PSGJ15_DCSA.Core
                 StartCoroutine(m_sceneHandler.LoadSceneAsync(sceneName));
             }
         }
-
-        #endregion
-
-        #region Screen Init
-
-        void SetResolution()
-        {
-            // TODO: Detect platform (PC/WebGL) and set resolution accordingly
-
-            if (Application.platform == RuntimePlatform.WebGLPlayer)
-            {
-                // WebGL - set resolution based on screen size
-                int screenWidth = Screen.width;
-                int screenHeight = Screen.height;
-                Screen.SetResolution(screenWidth, screenHeight, FullScreenMode.Windowed);
-            }
-            else if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.LinuxPlayer)
-            {
-                // PC build - set to 1920x1080
-                Screen.SetResolution(1920, 1080, FullScreenMode.FullScreenWindow);
-            }
-
-            // TODO: Add more platform-specific resolution settings if needed
-        }
-        #endregion
     }
 }

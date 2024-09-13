@@ -33,7 +33,7 @@ namespace PSGJ15_DCSA.Inputs
 
         [SerializeField] private Animator animator;
         [SerializeField] private AudioSource audioSource;
-        [SerializeField] private Camera cam;
+        [SerializeField] private Camera m_cam;
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // =========================================================================================================
@@ -134,7 +134,7 @@ namespace PSGJ15_DCSA.Inputs
 
             m_input.MouseMovementCanceled += HandleLookAround;
             m_input.ShiftCanceled += HandleShift;
-            //m_DAGameStates.OnGameStateChanged += HandleToggleActiveInputs;
+
 
             // adds itself to a reference ennemmies can find
             GameManager.Instance.ReferenceToPlayer = gameObject;
@@ -211,6 +211,7 @@ namespace PSGJ15_DCSA.Inputs
         {
             m_mouse1Pressed = false;
         }
+
         private void HandleToggleActiveInputs(GameState currentGameState)
         {
             //Debug.Log("currentGameState is    " + currentGameState);
@@ -220,33 +221,37 @@ namespace PSGJ15_DCSA.Inputs
                 case GameState.Initializing:
                 case GameState.Loading:
                 case GameState.Start:
-                {
-                    SetBoolGameplayActive(false);
-                    m_input.DisableAllInputs();
-                }
+                    {
+                        SetBoolGameplayActive(false);
+                        m_input.DisableAllInputs();
+                    }
                 break;
                 case GameState.Play:
-                {
-                    SetBoolGameplayActive(true);
-                    m_input.SetGameplayInputs();
-                    
-                }
+                    {
+                        SetBoolGameplayActive(true);
+                        m_input.SetGameplayInputs();
+                        
+                    }
                 break;
                 case GameState.Pause:
                 case GameState.Menu:
+                    {
+                        m_input.SetMenuInputs();
+                    }
+                    break;
                 case GameState.Dead:
                 case GameState.GameOver:
-                {
-                    SetBoolGameplayActive(false);
-                    m_input.SetMenuInputs();
-                }
-                break;
+                    {
+                        SetBoolGameplayActive(false);
+                        m_input.SetMenuInputs();
+                    }
+                    break;
                 default:
-                {
-                    SetBoolGameplayActive(false);
-                    m_input.DisableAllInputs();
-                }
-                break;
+                    {
+                        SetBoolGameplayActive(false);
+                        m_input.DisableAllInputs();
+                    }
+                    break;
             }
         }
         private void SetBoolGameplayActive(bool b)
@@ -307,7 +312,7 @@ namespace PSGJ15_DCSA.Inputs
         {
             UpdateJumpAttempt();
             Vector3 inputDirection = new Vector3(m_moveDirection.x, 0.0f, m_moveDirection.y);
-            Quaternion cameraRotation = Quaternion.Euler(0.0f, cam.transform.eulerAngles.y, 0.0f);
+            Quaternion cameraRotation = Quaternion.Euler(0.0f, m_cam.transform.eulerAngles.y, 0.0f);
             Vector3 moveDirection = cameraRotation * inputDirection;
 
             m_currentMovement = new Vector3(moveDirection.x, 0.0f, moveDirection.z) * (m_movementSpeed * m_runSpeedValue * Time.deltaTime);
@@ -399,7 +404,7 @@ namespace PSGJ15_DCSA.Inputs
 
         private void AttackRaycast()
         {
-            if(Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, attackDistance, m_attackLayer))
+            if(Physics.Raycast(m_cam.transform.position, m_cam.transform.forward, out RaycastHit hit, attackDistance, m_attackLayer))
             { 
                 HitTarget(hit.point);
 
